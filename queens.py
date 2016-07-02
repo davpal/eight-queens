@@ -41,27 +41,34 @@ def mutate(x):
     return x
 
 def genetic_queen(population, fitness):
+    mutation_probability = 0.03
     new_population = []
     probabilities = [probability(n, fitness) for n in population]
     for i in range(len(population)):
         x = random_pick(population, probabilities)
         y = random_pick(population, probabilities)
         child = reproduce(x, y)
-        if random.random() < 0.02:
+        if random.random() < mutation_probability:
             child = mutate(child)
+        print_individual(child)
         new_population.append(child)
     return new_population
+
+def print_individual(x):
+    print("{},  fitness = {}, probability = {:.6f}"
+        .format(str(x), fitness(x), probability(x, fitness)))
 
 if __name__ == "__main__":
     population = [random_individual(8) for _ in range(100)]
     generation = 1
+
     while not 28 in [fitness(x) for x in population]:
         print("=== Generation {} ===".format(generation))
         population = genetic_queen(population, fitness)
         print("Maximum fitness = {}".format(max([fitness(n) for n in population])))
         generation += 1
+
     print("Solved in Generation {}!".format(generation-1))
     for x in population:
         if fitness(x) == 28:
-            print("{},  fitness = {}, probability = {:.6f}"
-            .format(str(x), fitness(x), probability(x, fitness)))
+            print_individual(x)
