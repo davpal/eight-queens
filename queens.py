@@ -8,14 +8,26 @@ def random_individual(size):
 
 maxFitness = 28
 def fitness(individual):
-    collisions = sum([individual.count(queen)-1 for queen in individual])/2
-    for i, col in enumerate(individual):
-        for j, diagonal in enumerate(individual):
-            mod = abs(i-j)
-            if mod < 0:
-                if diagonal + mod == col or diagonal - mod == col:
-                    collisions += 1
-    return int(maxFitness - collisions)
+    horizontal_collisions = sum([individual.count(queen)-1 for queen in individual])/2
+    diagonal_collisions = 0
+
+    n = len(individual)
+    left_diagonal = [0] * 2*n
+    right_diagonal = [0] * 2*n
+    for i in range(n):
+        left_diagonal[i + individual[i] - 1] += 1
+        right_diagonal[len(individual) - i + individual[i] - 2] += 1
+
+    diagonal_collisions = 0
+    for i in range(2*n-1):
+        counter = 0
+        if left_diagonal[i] > 1:
+            counter += left_diagonal[i]-1
+        if right_diagonal[i] > 1:
+            counter += right_diagonal[i]-1
+        diagonal_collisions += counter / (n-abs(i-n+1))
+    
+    return int(maxFitness - (horizontal_collisions + diagonal_collisions))
 
 def probability(individual, fitness):
     return fitness(individual) / maxFitness
