@@ -32,14 +32,17 @@ def fitness(individual):
 def probability(individual, fitness):
     return fitness(individual) / maxFitness
 
-def random_pick(some_list, probabilities):
-    x = random.uniform(0, 1)
-    cumulative_probability = 0.0
-    for item, item_probability in zip(some_list, probabilities):
-        cumulative_probability += item_probability
-        if x < cumulative_probability: break
-    return item
-
+def random_pick(population, probabilities):
+    populationWithProbabilty = zip(population, probabilities)
+    total = sum(w for c, w in populationWithProbabilty)
+    r = random.uniform(0, total)
+    upto = 0
+    for c, w in zip(population, probabilities):
+        if upto + w >= r:
+            return c
+        upto += w
+    assert False, "Shouldn't get here"
+        
 def reproduce(x, y):
     n = len(x)
     c = random.randint(0, n - 1)
