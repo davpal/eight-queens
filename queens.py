@@ -67,6 +67,7 @@ def genetic_queen(population, fitness):
             child = mutate(child)
         print_individual(child)
         new_population.append(child)
+        if fitness(child) == 28: break
     return new_population
 
 def print_individual(x):
