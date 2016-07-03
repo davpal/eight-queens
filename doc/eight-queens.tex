@@ -92,7 +92,7 @@ Proces reprodukcji i ewentualnej mutacji będzie przebiegał aż do uzyskania w 
 
 \clearpage
 \subsection{Implementacja w języku Python}
-Dokonajmy analizy wszystkich części, z których składa się skrypt. Na samym początku generujemy populację o rozmiarze stu osobników. Następnie algorytm powtarza swoje dziłanie aż do znalezienia poprawnego rozwiązania.
+Dokonajmy analizy wszystkich części, z których składa się skrypt. Na samym początku generujemy populację o rozmiarze stu osobników. Następnie algorytm powtarza swoje działanie aż do znalezienia poprawnego rozwiązania.
 \begin{minted}
 [
 frame=lines,
@@ -144,17 +144,17 @@ def genetic_queen(population, fitness):
     return new_population
 \end{minted}
 \clearpage
-Na szczególną uwagę zasługuje funkcja licząca poziom dopasowania osobnika. Całkowita liczba kolizji to kolizje występujące w wierszach i na przekątnych. Kolizje w kolumnach nie są możliwe ze względu na zapis. Każda cyfra odpowiada za inną kolumnę. O ile znalezienie kolizji w wierszach jest dość proste. Niech P będzie zbiorem ustawień hetmanów:
-\[ h = \dfrac{n(n - |P|)}{2} \]
+Na szczególną uwagę zasługuje funkcja licząca poziom dopasowania osobnika. Całkowita liczba kolizji to kolizje występujące w wierszach i na przekątnych. Kolizje w kolumnach nie są możliwe ze względu na zapis. Każda cyfra odpowiada za inną kolumnę. Jeśli Q będzie konkretnym osobnikiem to liczba kolizji w wierszach to:
+\[ h = \dfrac{n(n - |Q|)}{2} \]
 Hetman znajdujący się i-tej kolumnie i q\textsubscript{i}-tym wierszu znajduje się też na (\(i+q_i-1\))-tej lewej przekątnej oraz 
-(\(n-1+q_i\))-tej prawej przekątnej. Niech zbiory L\textsubscript{i} i R\textsubscript{i} będą kolejnymi lewymi i prawymi przekątnymi, a Q konkretnym ustawieniem:
+(\(n-1+q_i\))-tej prawej przekątnej. Niech zbiory L\textsubscript{i} i R\textsubscript{i} będą kolejnymi lewymi i prawymi przekątnymi:
 
 \[ \forall q_i \in Q, i \in \langle1, n\rangle: q_i \in L_{i+q_i-1} \land q_i \in R_{n-1+q_i}  \]
 
-Liczba kolizji z lewej i prawej przekątnej zostaje podzielona przez ich długość i wyrażona wzorem:
+Liczba hetmanów z lewej i prawej przekątnej zostaje podzielona przez długość tych przekątnych. W wyniku otrzymujemy liczbę kolizji na i-tych przekątnych. Liczba kolizji na wszystkich przekątnych będzie więc opisana wzorem:
 \[ d = \sum_{i=1}^{2n-1}\dfrac{|L_i| + |R_i|}{n - |i-n|}\]
 Ostatecznie całkowitą liczbę kolizji otrzymujemy poprzez sumę kolizji w wierszach i przekątnych:
-\[ c = \dfrac{n(n - |P|)}{2} + \sum_{i=1}^{2n-1}\dfrac{|L_i| + |R_i|}{n - |i-n|}\]
+\[ c = \dfrac{n(n - |Q|)}{2} + \sum_{i=1}^{2n-1}\dfrac{|L_i| + |R_i|}{n - |i-n|}\]
 
 \begin{minted}
 [
@@ -189,9 +189,64 @@ def fitness(individual):
     return int(maxFitness - (horizontal_collisions + diagonal_collisions))
     
 \end{minted}
-
 \clearpage
-\section{Podsumowanie}
+\noindent Funkcje reprodukcji i mutacji są dość proste. Reprodukcja następuje przez połączenie pierwszej części pierwszego osobnika podzielonego względem losowego indeksu i drugiej części drugiego osobnika. Mutacją nazywamy zamianę losowego elementu osobnika na losową wartość z odpowiedniego zakresu w tym przypadku
+\( m \in \langle1,8\rangle \).
+\begin{minted}
+[
+frame=lines,
+framesep=2mm,
+baselinestretch=1.2,
+fontsize=\footnotesize,
+linenos
+]
+{python}
+def reproduce(x, y):
+    n = len(x)
+    c = random.randint(0, n - 1)
+    return x[0:c] + y[c:n]
 
-
+def mutate(x):
+    n = len(x)
+    c = random.randint(0, n - 1)
+    m = random.randint(1, n)
+    x[c] = m
+    return x
+\end{minted}
+Przykładowe rezultaty uruchomienia skryptu:
+\begin{verbatim}
+...
+[6, 8, 6, 4, 5, 7, 5, 3],  fitness = 25, probability = 0.892857
+[6, 8, 2, 4, 1, 7, 5, 3],  fitness = 28, probability = 1.000000
+Maximum fitness = 28
+Solved in Generation 3260!
+[6, 8, 2, 4, 1, 7, 5, 3],  fitness = 28, probability = 1.000000
+\end{verbatim}
+\rule{2in}{0.1pt}
+\begin{verbatim}
+...
+[3, 6, 5, 4, 5, 7, 2, 4],  fitness = 25, probability = 0.892857
+[3, 6, 8, 1, 5, 7, 2, 4],  fitness = 28, probability = 1.000000
+Maximum fitness = 28
+Solved in Generation 312!
+[3, 6, 8, 1, 5, 7, 2, 4],  fitness = 28, probability = 1.000000
+\end{verbatim}
+\rule{2in}{0.1pt}
+\begin{verbatim}
+...
+[4, 7, 4, 8, 5, 2, 6, 3],  fitness = 27, probability = 0.964286
+[4, 7, 1, 8, 5, 2, 6, 3],  fitness = 28, probability = 1.000000
+Maximum fitness = 28
+Solved in Generation 2047!
+[4, 7, 1, 8, 5, 2, 6, 3],  fitness = 28, probability = 1.000000
+\end{verbatim}
+\rule{2in}{0.1pt}
+\begin{verbatim}
+...
+[5, 3, 1, 3, 8, 6, 4, 2],  fitness = 27, probability = 0.964286
+[5, 7, 1, 3, 8, 6, 4, 2],  fitness = 28, probability = 1.000000
+Maximum fitness = 28
+Solved in Generation 6819!
+[5, 7, 1, 3, 8, 6, 4, 2],  fitness = 28, probability = 1.000000
+\end{verbatim}
 \end{document}
